@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuis Agama Kelas 6</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .soal { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+    #timer { font-size: 20px; font-weight: bold; color: red; margin-bottom: 20px; }
+    #hasil { margin-top: 30px; padding: 15px; border: 2px solid green; }
+    .benar { color: green; }
+    .salah { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Kuis Agama Kelas 6</h2>
+  <div id="timer">Sisa waktu: 20:00</div>
+  <form id="kuisForm"></form>
+  <button onclick="selesai()">Selesai</button>
+  <div id="hasil"></div>
+
+<script>
+// === DATA SOAL ===
+const soal = [
+  {
+    t: "Zakat fitrah wajib diberikan kepada…",
+    p: ["Semua orang kaya", "Golongan fakir miskin", "Anak yatim saja", "Semua tetangga"],
+    k: 1
+  },
+  {
+    t: "Perjanjian Hudaibiyah terjadi antara kaum muslimin dan…",
+    p: ["Kaum Yahudi", "Kaum Quraisy", "Kaum Romawi", "Kaum Persia"],
+    k: 1
+  },
+  {
+    t: "Fathu Makkah adalah peristiwa…",
+    p: ["Hijrah Nabi ke Madinah", "Kemenangan kaum muslimin merebut kota Makkah", "Perang besar pertama", "Turunnya Al-Qur'an"],
+    k: 1
+  },
+  {
+    t: "Yang termasuk mustahik zakat adalah fakir, miskin, dan…",
+    p: ["Orang kaya", "Mualaf", "Pejabat negara", "Majikan"],
+    k: 1
+  },
+  {
+    t: "Riqab, gharim, fisabilillah, dan ibnu sabil adalah…",
+    p: ["Nama sahabat Nabi", "Golongan penerima zakat", "Jenis ibadah haji", "Jenis shadaqah sunnah"],
+    k: 1
+  }
+];
+
+// === RENDER SOAL ===
+const form = document.getElementById("kuisForm");
+
+function render() {
+  form.innerHTML = "";
+  soal.forEach((s, i) => {
+    const saved = localStorage.getItem("jawaban_" + i);
+    let html = `<div class='soal'><p><b>${i+1}. ${s.t}</b></p>`;
+    s.p.forEach((p, j) => {
+      html += `
+        <label>
+          <input type='radio' name='soal${i}' value='${j}' ${saved == j ? "checked" : ""} onchange='saveJawaban(${i}, ${j})'>
+          ${p}
+        </label><br>
+      `;
+    });
+    html += `</div>`;
+    form.innerHTML += html;
+  });
+}
+
+render();
+
+// === SIMPAN JAWABAN ===
+function saveJawaban(no, val) {
+  localStorage.setItem("jawaban_" + no, val);
+}
+
+// === TIMER 20 MENIT ===
+let waktu = 20 * 60;
+function updateTimer() {
+  let m = Math.floor(waktu / 60);
+  let s = waktu % 60;
+  document.getElementById("timer").innerText = `Sisa waktu: ${m}:${s.toString().padStart(2, '0')}`;
+  if (waktu > 0) waktu--; else selesai();
+}
+setInterval(updateTimer, 1000);
+
+// === SELESAI ===
+function selesai() {
+  let benar = 0;
+  let detail = "";
+
+  soal.forEach((s, i) => {
+    const jwb = localStorage.getItem("jawaban_" + i);
+    if (jwb == s.k) benar++;
+
+    detail += `<p><b>Soal ${i+1}:</b> ${s.t}<br>`;
+    if (jwb == s.k) {
+      detail += `<span class='benar'>Benar ✔</span>`;
+    } else {
+      detail += `<span class='salah'>Salah ✖</span><br>Jawaban benar: <b>${s.p[s.k]}</b>`;
+    }
+    detail += `</p>`;
+  });
+
+  document.getElementById("hasil").innerHTML = `
+    <h3>Hasil Akhir</h3>
+    <p>Nilai: <b>${benar}/${soal.length}</b></p>
+    ${detail}
+  `;
+}
+</script>
+
+</body>
+</html>
